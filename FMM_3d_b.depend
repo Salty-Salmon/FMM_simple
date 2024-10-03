@@ -1,0 +1,99 @@
+# depslib dependency file v1.0
+1694275240 source:/home/lososinus/Cepepes/gas/FMM_3d_b/main.cpp
+	<iostream>
+	<chrono>
+	<cmath>
+	<vector>
+	<set>
+	<complex>
+	<climits>
+	<string>
+	<fstream>
+	<iomanip>
+	<algorithm>
+	"include/Gas.hpp"
+	"include/Interaction_Coulomb_FMM.hpp"
+	"include/Interaction_Coulomb_pairwise.hpp"
+	"include/Interaction_short.hpp"
+	"include/Interaction_external.hpp"
+	"include/Stopwatch.hpp"
+
+1693760609 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Gas.hpp
+	<iostream>
+	<fstream>
+	<vector>
+	"Particle.hpp"
+	"Interaction_base.hpp"
+	"Stopwatch.hpp"
+
+1693253966 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Particle.hpp
+	"Vec_3d.hpp"
+
+1692912853 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Vec_3d.hpp
+	<cmath>
+	<iostream>
+	<random>
+	<chrono>
+
+1670005161 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Interaction_base.hpp
+	<vector>
+	"Particle.hpp"
+	"Stopwatch.hpp"
+
+1670412842 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Stopwatch.hpp
+	<iostream>
+	<vector>
+	<string>
+	<iomanip>
+	<chrono>
+
+1693555952 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Interaction_Coulomb_FMM.hpp
+	<cmath>
+	<iomanip>
+	<vector>
+	"Interaction_base.hpp"
+	"Particle.hpp"
+	"Real_harmonics.hpp"
+	"Gas.hpp"
+
+1692739967 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Real_harmonics.hpp
+	"Vec_3d.hpp"
+	<iostream>
+
+1670351154 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Interaction_Coulomb_pairwise.hpp
+	<cmath>
+	"Interaction_base.hpp"
+
+1693095621 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Interaction_short.hpp
+	<cmath>
+	"Interaction_base.hpp"
+	"Gas.hpp"
+
+1670365105 /home/lososinus/Cepepes/gas/FMM_3d_b/include/Interaction_external.hpp
+	<cmath>
+	"Interaction_base.hpp"
+
+1693422097 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Gas.cpp
+	"../include/Gas.hpp"
+
+1692853759 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Interaction_Coulomb_pairwise.cpp
+	"../include/Interaction_Coulomb_pairwise.hpp"
+
+1670365105 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Interaction_external.cpp
+	"../include/Interaction_external.hpp"
+
+1693095621 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Interaction_short.cpp
+	"../include/Interaction_short.hpp"
+
+1692739880 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Real_harmonics.cpp
+	"../include/Real_harmonics.hpp"
+
+1671443821 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Stopwatch.cpp
+	"../include/Stopwatch.hpp"
+
+1692385460 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Vec_3d.cpp
+	"../include/Vec_3d.hpp"
+
+1693555969 source:/home/lososinus/Cepepes/gas/FMM_3d_b/src/Interaction_Coulomb_FMM.cpp
+	"../include/Interaction_Coulomb_FMM.hpp"
+

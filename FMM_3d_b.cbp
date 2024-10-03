@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="FMM_3d_b" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/FMM_3d_b" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/FMM_3d_b" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+		</Compiler>
+		<Unit filename="include/Gas.hpp" />
+		<Unit filename="include/Interaction_Coulomb_FMM.hpp" />
+		<Unit filename="include/Interaction_Coulomb_pairwise.hpp" />
+		<Unit filename="include/Interaction_base.hpp" />
+		<Unit filename="include/Interaction_external.hpp" />
+		<Unit filename="include/Interaction_short.hpp" />
+		<Unit filename="include/Particle.hpp" />
+		<Unit filename="include/Real_harmonics.hpp" />
+		<Unit filename="include/Stopwatch.hpp" />
+		<Unit filename="include/Vec_3d.hpp" />
+		<Unit filename="main.cpp" />
+		<Unit filename="src/Gas.cpp" />
+		<Unit filename="src/Interaction_Coulomb_FMM.cpp" />
+		<Unit filename="src/Interaction_Coulomb_pairwise.cpp" />
+		<Unit filename="src/Interaction_external.cpp" />
+		<Unit filename="src/Interaction_short.cpp" />
+		<Unit filename="src/Real_harmonics.cpp" />
+		<Unit filename="src/Stopwatch.cpp" />
+		<Unit filename="src/Vec_3d.cpp" />
+		<Extensions />
+	</Project>
+</CodeBlocks_project_file>
