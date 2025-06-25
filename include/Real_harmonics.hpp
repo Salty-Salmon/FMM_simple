@@ -56,18 +56,49 @@ public:
     };
 
     Multipole_table &operator+=(Multipole_table const &lha){
-        if (size_order >= lha.size_order){
-            for (size_t i=0; i<lha.size_order*lha.size_order; ++i){
+        {
+            size_t size_min = std::min(size_order, lha.size_order);
+            size_t i=0;
+            for (; i+3 < size_min*size_min; i+=4){
+                arr[i+0] += lha.arr[i+0];
+                arr[i+1] += lha.arr[i+1];
+                arr[i+2] += lha.arr[i+2];
+                arr[i+3] += lha.arr[i+3];
+            }
+            for (; i < size_min*size_min; ++i){
                 arr[i] += lha.arr[i];
             }
-        } else {
+        }
+        if(size_order < lha.size_order){
             double *arr_new = new double[lha.size_order*lha.size_order];
-            for (size_t i=0; i<size_order*size_order; ++i){
-                arr_new[i] = arr[i] + lha.arr[i];
+            size_t i=0;
+            for (; i+3 < size_order*size_order; i+=4){
+                arr_new[i+0] = arr[i+0];
+                arr_new[i+1] = arr[i+1];
+                arr_new[i+2] = arr[i+2];
+                arr_new[i+3] = arr[i+3];
             }
-            for (size_t i=size_order*size_order; i<lha.size_order*lha.size_order; ++i){
+            for (; i < size_order*size_order; ++i){
+                arr_new[i] = arr[i];
+            }
+
+            for (; i+3 < lha.size_order*lha.size_order; i+=4){
+                arr_new[i+0] = lha.arr[i+0];
+                arr_new[i+1] = lha.arr[i+1];
+                arr_new[i+2] = lha.arr[i+2];
+                arr_new[i+3] = lha.arr[i+3];
+            }
+            for (; i < lha.size_order*lha.size_order; ++i){
                 arr_new[i] = lha.arr[i];
             }
+
+//            for (size_t i=0; i<size_order*size_order; ++i){
+//                arr_new[i] = arr[i];
+//            }
+//            for (size_t i=size_order*size_order; i<lha.size_order*lha.size_order; ++i){
+//                arr_new[i] = lha.arr[i];
+//            }
+
             size_order = lha.size_order;
             delete[] arr;
             arr = arr_new;
@@ -159,6 +190,11 @@ public:
 class Multipole_calculator{
 private:
     size_t p_max;
+
+    double *poly_z;
+    double *re_x_iy;
+    double *im_x_iy;
+
     double *recc_ll_11;
     double *recc_ll_12;
     double *recc_lm_10;
@@ -174,6 +210,7 @@ private:
     Multipole_table weight_irr_der_y_dec_m;
     Multipole_table weight_irr_der_y_inc_m;
     Multipole_table weight_irr_der_z;
+
 
 public:
     void init(size_t p_max_);

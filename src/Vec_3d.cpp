@@ -1,5 +1,7 @@
 #include "../include/Vec_3d.hpp"
 
+size_t Vec_3d::out_precision = 4;
+
 Vec_3d rotate_a_to_b(Vec_3d a, Vec_3d b, Vec_3d p){
     const double cos_min = 1E-9 - 1.0;
 

@@ -20,7 +20,7 @@ public:
     std::vector<Particle *> gas_neighbour;
     std::vector<Particle *> gas_interaction;
 
-    FMM_octtree_node(Vec_3d pos, double r, std::vector<Particle *> &gas);
+    FMM_octtree_node(Vec_3d pos, double r, std::vector<Particle *> const &gas);
 };
 
 class Interaction_Coulomb_FMM_nlogn: public Interaction_base{
@@ -43,17 +43,17 @@ private:
     void complete_gas  (FMM_octtree_node *parent, FMM_octtree_node *curr);
 
     void calc_handler_recursion (FMM_octtree_node *curr);
-    void calc_handler (std::vector<Particle *> &gas);
+    void calc_handler (std::vector<Particle *> const &gas);
 
     void print_tree_recursion(FMM_octtree_node *curr, std::ostream& os);
 public:
     double coulomb_constant;
 
     Interaction_Coulomb_FMM_nlogn (double coulomb_constant_, double max_err_force_, double mp_rel_dist_, double mp_dir_time_ratio_);
-    double calc_energy (std::vector<Particle *> &gas);
-    void   calc_force  (std::vector<Particle *> &gas);
-    double calc        (std::vector<Particle *> &gas);
+    double calc_energy (std::vector<Particle *> const &gas);
+    void   calc_force  (std::vector<Particle *> const &gas);
+    double calc        (std::vector<Particle *> const &gas);
 
-    void print_tree (std::vector<Particle *> &gas, std::ostream& os);
+    void print_tree (std::vector<Particle *> const &gas, std::ostream& os);
 };
 

@@ -12,7 +12,7 @@ Vec_3d Interaction_Coulomb_pairwise::calc_force_pcl_pcl (Particle *pcl_1, Partic
     return (factor * (pcl_1->charge * pcl_2->charge) / (r_len * r_len * r_len)) * r;
 }
 
-double Interaction_Coulomb_pairwise::calc_energy (std::vector<Particle *> &gas){
+double Interaction_Coulomb_pairwise::calc_energy (std::vector<Particle *> const &gas){
     double energy = 0;
     for (auto it_1 = gas.begin(); it_1 != gas.end(); ++it_1){
         Particle *pcl_1 = *it_1;
@@ -27,7 +27,7 @@ double Interaction_Coulomb_pairwise::calc_energy (std::vector<Particle *> &gas){
     return energy;
 }
 
-void Interaction_Coulomb_pairwise::calc_force (std::vector<Particle *> &gas){
+void Interaction_Coulomb_pairwise::calc_force (std::vector<Particle *> const &gas){
     for (auto it_1 = gas.begin(); it_1 != gas.end(); ++it_1){
         Particle *pcl_1 = *it_1;
         for (auto it_2 = std::next(it_1); it_2 != gas.end(); ++it_2){
@@ -39,7 +39,7 @@ void Interaction_Coulomb_pairwise::calc_force (std::vector<Particle *> &gas){
     }
 }
 
-double Interaction_Coulomb_pairwise::calc (std::vector<Particle *> &gas){
+double Interaction_Coulomb_pairwise::calc (std::vector<Particle *> const &gas){
     calc_force(gas);
     return calc_energy(gas);
 }

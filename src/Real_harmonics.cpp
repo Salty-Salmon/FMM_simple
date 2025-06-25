@@ -2,12 +2,20 @@
 
 void Multipole_calculator::init(size_t p_max_){
     if(recc_ll_11!=nullptr){
+        delete[] poly_z;
+        delete[] re_x_iy;
+        delete[] im_x_iy;
+
         delete[] recc_ll_11;
         delete[] recc_ll_12;
         delete[] recc_lm_10;
         delete[] recc_lm_20;
     }
     p_max = std::max(p_max_, (size_t)2);
+
+    poly_z  = new double[p_max*(p_max+1)/2];
+    re_x_iy = new double[p_max];
+    im_x_iy = new double[p_max];
 
     recc_ll_11 = new double[p_max];
     recc_ll_12 = new double[p_max];
@@ -130,6 +138,10 @@ Multipole_calculator::Multipole_calculator(size_t p_max_):
 };
 
 Multipole_calculator::~Multipole_calculator(){
+    delete[] poly_z;
+    delete[] re_x_iy;
+    delete[] im_x_iy;
+
     delete[] recc_ll_11;
     delete[] recc_ll_12;
     delete[] recc_lm_10;
@@ -150,9 +162,9 @@ Multipole_table Multipole_calculator::calc_regular (Vec_3d r, double charge, siz
             return ans;
         }
     }
-    double *poly_z  = new double[p*(p+1)/2];
-    double *re_x_iy = new double[p];
-    double *im_x_iy = new double[p];
+//    double *poly_z  = new double[p*(p+1)/2];
+//    double *re_x_iy = new double[p];
+//    double *im_x_iy = new double[p];
 
     double r_sqr = r.sqr();
     double x = r.x;
@@ -169,7 +181,8 @@ Multipole_table Multipole_calculator::calc_regular (Vec_3d r, double charge, siz
         size_t l_pos_2 = l_pos_1 - (l-1);
 
         for (size_t m=0; m<=l-2; ++m){
-            poly_z[l_pos + m] = recc_lm_10[l_pos + m]*z*poly_z[l_pos_1 + m] + recc_lm_20[l_pos + m]*r_sqr*poly_z[l_pos_2 + m];
+            poly_z[l_pos + m] = recc_lm_10[l_pos + m] * z     * poly_z[l_pos_1 + m]
+                              + recc_lm_20[l_pos + m] * r_sqr * poly_z[l_pos_2 + m];
         }
         poly_z[l_pos + l-1] = recc_ll_12[l]*poly_z[l_pos_1 + (l-2)];
         poly_z[l_pos + l]   = recc_ll_11[l]*poly_z[l_pos_1 + (l-1)];
@@ -191,9 +204,9 @@ Multipole_table Multipole_calculator::calc_regular (Vec_3d r, double charge, siz
             ans[l][-m] = poly_z[l_pos + m] * im_x_iy[m];
         }
     }
-    delete[] poly_z;
-    delete[] re_x_iy;
-    delete[] im_x_iy;
+//    delete[] poly_z;
+//    delete[] re_x_iy;
+//    delete[] im_x_iy;
 
     return ans;
 };

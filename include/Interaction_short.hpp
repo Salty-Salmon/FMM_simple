@@ -45,7 +45,7 @@ public:
     const double pcl_diam;
     Node *root;
 
-    Collision_octtree (std::vector<Particle *> &gas, double cell_size, double pcl_diam);
+    Collision_octtree (std::vector<Particle *> const &gas, double cell_size, double pcl_diam);
     ~Collision_octtree ();
     Collision_octtree (Collision_octtree const &) = delete;
     Collision_octtree& operator=(Collision_octtree const &) = delete;
@@ -62,7 +62,19 @@ public:
 
 struct smooth_func{
 private:
-    static double slow_pow(double x, unsigned int n);
+    static double slow_pow(double x, unsigned int n){
+        double ans = 1.0;
+        double pow = x;
+        unsigned int pow_pow = 1;
+        while (pow_pow <= n){
+            if (n & pow_pow) {
+                ans *= pow;
+            }
+            pow *= pow;
+            pow_pow = pow_pow << 1;
+        }
+        return ans;
+    };
 public:
     double r_0;
     double r_1;
@@ -97,7 +109,7 @@ public:
     Vec_3d calc_force_pcl_pcl_unmod  (Particle *pcl_1, Particle *pcl_2);
     double calc_energy_pcl_pcl (Particle *pcl_1, Particle *pcl_2);
     Vec_3d calc_force_pcl_pcl  (Particle *pcl_1, Particle *pcl_2);
-    double calc_energy (std::vector<Particle *> &gas);
-    void   calc_force  (std::vector<Particle *> &gas);
-    double calc        (std::vector<Particle *> &gas);
+    double calc_energy (std::vector<Particle *> const &gas);
+    void   calc_force  (std::vector<Particle *> const &gas);
+    double calc        (std::vector<Particle *> const &gas);
 };

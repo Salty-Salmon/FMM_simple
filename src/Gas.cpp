@@ -1,6 +1,6 @@
 #include "../include/Gas.hpp"
 
-std::pair<Vec_3d, Vec_3d> get_bounding_box(std::vector<Particle *> &gas){
+std::pair<Vec_3d, Vec_3d> get_bounding_box(std::vector<Particle *> const &gas){
     Vec_3d coor_min;
     coor_min.x = coor_min.y = coor_min.z = std::numeric_limits<double>::infinity();
     Vec_3d coor_max = -1.0 * coor_min;
@@ -18,7 +18,7 @@ std::pair<Vec_3d, Vec_3d> get_bounding_box(std::vector<Particle *> &gas){
     return std::make_pair(pos, dim);
 }
 
-std::pair<Vec_3d, double> get_bounding_cube(std::vector<Particle *> &gas){
+std::pair<Vec_3d, double> get_bounding_cube(std::vector<Particle *> const &gas){
     std::pair<Vec_3d, Vec_3d> box = get_bounding_box(gas);
     double r = box.second.x;
     if (r < box.second.y){ r = box.second.y; }
@@ -26,80 +26,49 @@ std::pair<Vec_3d, double> get_bounding_cube(std::vector<Particle *> &gas){
     return std::make_pair(box.first, r);
 }
 
-Vec_3d get_vel_cm (std::vector<Particle *> &gas){
-    Vec_3d momentum(0, 0, 0);
-    double gas_mass = 0;
-    for (auto pcl : gas){
-        momentum += pcl->vel * pcl->mass;
-        gas_mass += pcl->mass;
-    }
-    return momentum/gas_mass;
-}
-
-void reset_force (std::vector<Particle *> &gas){
+void reset_force (std::vector<Particle *> const &gas){
     for(auto pcl : gas){
         pcl->force = Vec_3d(0, 0, 0);
     }
 }
 
-void reset_potential (std::vector<Particle *> &gas){
+void reset_potential (std::vector<Particle *> const &gas){
     for(auto pcl : gas){
         pcl->potential = 0;
     }
 }
 
-void force_to_acc (std::vector<Particle *> &gas){
+void force_to_acc (std::vector<Particle *> const &gas){
     for(auto pcl : gas){
         pcl->acc = pcl->force / pcl->mass;
     }
 }
 
-
-void read_gas(std::vector<Particle *> &gas, const std::string &name){
-    std::ifstream f_in;
-    f_in.open (name);
-    {
-        std::string skip;
-        std::getline(f_in, skip);
-    }
-    Vec_3d pos;
-    Vec_3d vel;
-    double mass;
-    double charge;
-    double potential;
-    while (f_in >> pos.x){
-        f_in >> pos.y >> pos.z >> vel.x >> vel.y >> vel.z >> mass >> charge >> potential;
-        Particle *pcl = new Particle(pos, vel, mass, charge);
-        pcl->potential = potential;
-        gas.push_back(pcl);
-    }
-    f_in.close();
-}
-
-void print_gas(std::vector<Particle *> &gas, std::ostream& os){
-    os << "x y z vx vy vz mass charge potential\n";
-    for(auto pcl : gas){
-        pcl->print_minimal(os);
-    }
-}
-
-void print_frame(std::vector<Particle *> &gas, int i){
-    std::ofstream f_out;
-    f_out.open ("data/frames/frame" + std::to_string(i) + ".txt");
-    print_gas(gas, f_out);
-    f_out.close();
-}
-
-
-double calc_kinetic_energy(std::vector<Particle *> &gas){
+double calc_kinetic_energy(std::vector<Particle *> const &gas){
     double energy = 0;
     for(auto pcl : gas){
         energy += pcl->vel.sqr() * pcl->mass;
     }
     return energy / 2;
 }
+Vec_3d calc_momentum (std::vector<Particle *> const &gas){
+    Vec_3d momentum, angular_mom;
+    for(auto pcl : gas){
+        momentum += pcl->mass * pcl->vel;
+    }
+    return momentum;
+}
+Vec_3d calc_angular_mom (std::vector<Particle *> const &gas){
+    Vec_3d angular_mom;
+    for(auto pcl : gas){
+        angular_mom += pcl->mass * pcl->pos.cross(pcl->vel);
+    }
+    return angular_mom;
+}
 
-double calc_potential_energy(std::vector<Particle *> &gas, std::vector<Interaction_base *> &inter_arr){
+double calc_potential_energy(std::vector<Particle *> const &gas,
+                             std::vector<Interaction_base *> &inter_arr)
+{
     double energy = 0;
     for (auto inter : inter_arr){
         energy += inter->calc_energy(gas);
@@ -107,20 +76,104 @@ double calc_potential_energy(std::vector<Particle *> &gas, std::vector<Interacti
     return energy;
 }
 
-void verlet(std::vector<Particle *> &gas, std::vector<Interaction_base *> &inter_arr, double dt){
-    for(auto pcl : gas){
-        pcl->pos += pcl->vel * dt + pcl->acc * (dt*dt/2);
-        pcl->vel += pcl->acc * (dt/2);
-    }
-
+double init_redundant(std::vector<Particle *> const &gas,
+                      std::vector<Rigid_body *> &bodies,
+                      std::vector<Interaction_base *> &inter_arr)
+{
+    double ener = 0;
     reset_force(gas);
     reset_potential(gas);
     for (auto inter : inter_arr){
-        inter->calc_force(gas);
+        ener += inter->calc(gas);
     }
     force_to_acc(gas);
-
-    for(auto pcl : gas){
-        pcl->vel += pcl->acc * (dt/2);
+    for (auto body : bodies){
+        body->calc_force_acc();
+        body->calc_torque();
     }
+
+    ener += calc_kinetic_energy(gas);
+
+    return ener;
 }
+
+double euler(std::vector<Particle *> const &gas,
+             std::vector<Rigid_body *> &bodies,
+             std::vector<Interaction_base *> &inter_arr,
+             double dt, bool calc_ener)
+{
+    for (auto pcl : gas){
+        if (!pcl->rigid_body_id){
+            pcl->pos += pcl->vel * dt;
+            pcl->vel += pcl->acc * dt;
+        }
+    }
+    for (auto body : bodies){
+        body->pos += body->vel * dt;
+        body->vel += body->acc * dt;
+
+        body->angular_mom += body->torque * dt;
+        body->rotation += body->calc_rotation_der() * dt;
+        body->rotation = body->rotation.orthogonalize();
+
+        body->fill_parts_pos_vel();
+    }
+
+    double ener = 0;
+    reset_force(gas);
+    reset_potential(gas);
+    for (auto inter : inter_arr){
+        if(calc_ener){
+            ener += inter->calc(gas);
+        }else{
+            inter->calc_force(gas);
+        }
+    }
+    force_to_acc(gas);
+    for (auto body : bodies){
+        body->calc_force_acc();
+        body->calc_torque();
+    }
+
+    if (calc_ener){
+        ener += calc_kinetic_energy(gas);
+    }
+    return ener;
+}
+
+//double verlet(std::vector<Particle *> const &gas,
+//              std::vector<Rigid_body *> &bodies,
+//              std::vector<Interaction_base *> &inter_arr,
+//              double dt, bool calc_ener)
+//{
+//    for(auto pcl : gas){
+//        if (!pcl->rigid_body_id){
+//            pcl->pos += pcl->vel * dt + pcl->acc * (dt*dt/2);
+//            pcl->vel += pcl->acc * (dt/2);
+//        }
+//    }
+//
+//    double ener = 0;
+//    reset_force(gas);
+//    reset_potential(gas);
+//    for (auto inter : inter_arr){
+//        if(calc_ener){
+//            ener += inter->calc(gas);
+//        }else{
+//            inter->calc_force(gas);
+//        }
+//
+//    }
+//    force_to_acc(gas);
+//
+//    for(auto pcl : gas){
+//        if (!pcl->rigid_body_id){
+//            pcl->vel += pcl->acc * (dt/2);
+//        }
+//    }
+//    if (calc_ener){
+//        ener += calc_kinetic_energy(gas);
+//    }
+//    return ener;
+//}
+

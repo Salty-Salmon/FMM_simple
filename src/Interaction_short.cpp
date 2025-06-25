@@ -105,8 +105,10 @@ void Collision_octtree::get_collisions_recursion(Node *curr, std::vector<std::pa
             curr->gas.pop_back();
             for (auto neighbour : neighbour_list){
                 for (auto pcl_2 : neighbour->gas){
-                    if ( check_collision(pcl_1, pcl_2) ){
-                        collisions.push_back(std::make_pair(pcl_1, pcl_2));
+                    if (!pcl_1->rigid_body_id || pcl_1->rigid_body_id != pcl_2->rigid_body_id){
+                        if ( check_collision(pcl_1, pcl_2) ){
+                            collisions.push_back(std::make_pair(pcl_1, pcl_2));
+                        }
                     }
                 }
             }
@@ -132,8 +134,10 @@ void Collision_octtree::handle_collisions_recursion(Node *curr, Functor_base &fu
             curr->gas.pop_back();
             for (auto neighbour : neighbour_list){
                 for (auto pcl_2 : neighbour->gas){
-                    if ( check_collision(pcl_1, pcl_2) ){
-                        functor.handle_collision(pcl_1, pcl_2);
+                    if (!pcl_1->rigid_body_id || pcl_1->rigid_body_id != pcl_2->rigid_body_id){
+                        if ( check_collision(pcl_1, pcl_2) ){
+                            functor.handle_collision(pcl_1, pcl_2);
+                        }
                     }
                 }
             }
@@ -188,7 +192,7 @@ void Collision_octtree::print_recursion (Node *curr, std::ostream& os){
     }
 };
 
-Collision_octtree::Collision_octtree (std::vector<Particle *> &gas, double cell_size, double pcl_diam):
+Collision_octtree::Collision_octtree (std::vector<Particle *> const &gas, double cell_size, double pcl_diam):
     cell_size(cell_size), pcl_diam(pcl_diam)
 {
     std::pair<Vec_3d, double> cube = get_bounding_cube(gas);
@@ -234,14 +238,6 @@ void Collision_octtree::print_tree_paraview(int i){
 
 smooth_func::smooth_func(double r_0, double r_1, unsigned int degree):
     r_0(r_0), r_1(r_1), degree(degree) {}
-
-double smooth_func::slow_pow(double x, unsigned int n){
-    double pow = 1.0;
-    for (unsigned int i=0; i<n; ++i){
-        pow *= x;
-    }
-    return pow;
-}
 
 double smooth_func::operator()(double x){
     double x_normed = (x-r_0)/(r_1-r_0);
@@ -306,7 +302,7 @@ Vec_3d Interaction_6_12_smoothed::calc_force_pcl_pcl (Particle *pcl_1, Particle 
 
 }
 
-double Interaction_6_12_smoothed::calc_energy (std::vector<Particle *> &gas){
+double Interaction_6_12_smoothed::calc_energy (std::vector<Particle *> const &gas){
     double energy = 0;
     Collision_octtree tree(gas, smooth_f.r_0, smooth_f.r_0);
     std::vector<std::pair<Particle *, Particle *> > collisions = tree.get_collisions();
@@ -316,13 +312,13 @@ double Interaction_6_12_smoothed::calc_energy (std::vector<Particle *> &gas){
     return energy;
 }
 
-void Interaction_6_12_smoothed::calc_force (std::vector<Particle *> &gas){
+void Interaction_6_12_smoothed::calc_force (std::vector<Particle *> const &gas){
     Collision_octtree tree(gas, smooth_f.r_0, smooth_f.r_0);
     Functor_calc_force functor(this);
     tree.handle_collisions(functor);
 }
 
-double Interaction_6_12_smoothed::calc (std::vector<Particle *> &gas){
+double Interaction_6_12_smoothed::calc (std::vector<Particle *> const &gas){
     double energy = 0;
     Collision_octtree tree(gas, smooth_f.r_0, smooth_f.r_0);
     std::vector<std::pair<Particle *, Particle *> > collisions = tree.get_collisions();

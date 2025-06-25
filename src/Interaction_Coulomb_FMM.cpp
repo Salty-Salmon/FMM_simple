@@ -3,7 +3,7 @@
 
 ///FMM_octtree_node
 
-FMM_octtree_node::FMM_octtree_node(Vec_3d pos, double r, std::vector<Particle *> &gas):
+FMM_octtree_node::FMM_octtree_node(Vec_3d pos, double r, std::vector<Particle *> const &gas):
     pos(pos), r(r),
     gas(gas),
     gas_neighbour(0),
@@ -212,7 +212,7 @@ void Interaction_Coulomb_FMM_nlogn::calc_handler_recursion(FMM_octtree_node *cur
     }
 }
 
-void Interaction_Coulomb_FMM_nlogn::calc_handler (std::vector<Particle *> &gas){
+void Interaction_Coulomb_FMM_nlogn::calc_handler (std::vector<Particle *> const &gas){
     gas_energy = 0;
     for(auto pcl : gas){
         pcl->processed = false;
@@ -228,20 +228,20 @@ void Interaction_Coulomb_FMM_nlogn::calc_handler (std::vector<Particle *> &gas){
     delete root;
 };
 
-double Interaction_Coulomb_FMM_nlogn::calc_energy(std::vector<Particle *> &gas){
+double Interaction_Coulomb_FMM_nlogn::calc_energy(std::vector<Particle *> const &gas){
     must_calc_energy = true;
     must_calc_force  = false;
     calc_handler(gas);
     return gas_energy;
 }
 
-void Interaction_Coulomb_FMM_nlogn::calc_force (std::vector<Particle *> &gas){
+void Interaction_Coulomb_FMM_nlogn::calc_force (std::vector<Particle *> const &gas){
     must_calc_energy = false;
     must_calc_force  = true;
     calc_handler(gas);
 }
 
-double Interaction_Coulomb_FMM_nlogn::calc (std::vector<Particle *> &gas){
+double Interaction_Coulomb_FMM_nlogn::calc (std::vector<Particle *> const &gas){
     must_calc_energy = true;
     must_calc_force  = true;
     calc_handler(gas);
@@ -271,9 +271,6 @@ void Interaction_Coulomb_FMM_nlogn::print_tree_recursion(FMM_octtree_node *curr,
                 if (gas_son[i_x][i_y][i_z].size() != 0){
                     double new_r = curr->r / 2;
                     Vec_3d new_pos = curr->pos + new_r * Vec_3d((2*i_x-1), (2*i_y-1), (2*i_z-1));
-//                    std::pair<Vec_3d, double> cube = get_bounding_cube(gas_son[i_x][i_y][i_z]);
-//                    Vec_3d new_pos = cube.first;
-//                    double new_r   = cube.second;
 
                     FMM_octtree_node *son = new FMM_octtree_node(new_pos, new_r, gas_son[i_x][i_y][i_z]);
                     complete_gas(curr, son);
@@ -286,7 +283,7 @@ void Interaction_Coulomb_FMM_nlogn::print_tree_recursion(FMM_octtree_node *curr,
     }
 }
 
-void Interaction_Coulomb_FMM_nlogn::print_tree (std::vector<Particle *> &gas, std::ostream& os){
+void Interaction_Coulomb_FMM_nlogn::print_tree (std::vector<Particle *> const &gas, std::ostream& os){
     for(auto pcl : gas){
         pcl->processed = false;
     }
